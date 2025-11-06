@@ -1,0 +1,77 @@
+﻿@{
+    ViewData["Title"] = "Help & FAQ";
+}
+
+<div class="container mt-4">
+    
+
+    <h1 class="display-6 mb-4">@ViewData["Title"]</h1>
+
+    <div class="accordion" id="faqAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                    How do I log in?
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Use the email address and password provided by the system administrator. If this is your first time logging in, you may be required to use a temporary password and set a new one immediately. Click the "Login" button on the top right or the main landing page.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    I forgot my password. How can I reset it?
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Click on the "Forgot your password?" link on the login page. Enter your registered email address, and instructions for resetting your password will be sent to you if an account exists for that email.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                    Why can't I manage my skills/qualifications/trainings?
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    You must complete your core profile information first (including ID Number and Job Title) to reach 100% completion. Once your profile is complete, the management links on your dashboard will become active. Navigate to "My Profile" to update your details.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFour">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                    How long does qualification verification take?
+                </button>
+            </h2>
+            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    Verification times may vary. Once you submit a qualification, it enters the 'Pending' status. An administrator will review the submission. You will see the status change to 'Verified' or 'Rejected' on your "My Qualifications" page once the review is complete. You may receive a notification.
+                </div>
+            </div>
+        </div>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingFive">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                    Who do I contact for technical support?
+                </button>
+            </h2>
+            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    For technical issues with the portal, please use the "Support Channel" message box on your dashboard or contact the designated IT support desk.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-center">
+        <p class="text-muted">Can't find your answer? <a asp-action="Contact">Contact Us</a>.</p>
+    </div>
+
+</div>

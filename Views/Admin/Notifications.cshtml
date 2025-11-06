@@ -1,0 +1,263 @@
+﻿@model List<Capableza.Web.Models.AppNotification>
+@using Capableza.Web.Helpers
+@{
+    ViewData["Title"] = "Notifications";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    int countAll = ViewBag.CountAll ?? 0;
+    int countUnread = ViewBag.CountUnread ?? 0;
+    int countApprovals = ViewBag.CountApprovals ?? 0;
+    int countMessages = ViewBag.CountMessages ?? 0;
+    int countSystemAlerts = ViewBag.CountSystemAlerts ?? 0;
+    string currentFilter = (ViewBag.CurrentFilter as string ?? "all").ToLower();
+    string currentSearch = ViewBag.CurrentSearch as string ?? "";
+
+    string GetFilterClass(string filterName) => filterName.ToLower() == currentFilter ? "active" : "";
+}
+
+<style>
+    .notifications-header { margin-bottom: 1.5rem; }
+    .nav-tabs-filters { border-bottom: 1px solid #dee2e6; }
+    .nav-tabs-filters .nav-link {
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6c757d;
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: -1px;
+    }
+    .nav-tabs-filters .nav-link.active {
+        color: #0F6F84;
+        border-bottom-color: #0F6F84;
+        font-weight: 600;
+    }
+     .nav-tabs-filters .nav-link:hover { border-bottom-color: #adb5bd; }
+
+    .search-and-actions { margin-bottom: 1.5rem; }
+    .search-and-actions .input-group-sm .form-control,
+    .search-and-actions .input-group-sm .input-group-text { font-size: 0.8rem; border-radius: 0.375rem; }
+    .btn-mark-all { font-size: 0.8rem; background-color: #0F6F84; border-color: #0F6F84; color: white; border-radius: 0.375rem;}
+    .btn-mark-all:hover { background-color: #0B5B6D; border-color: #0B5B6D;}
+
+    .notification-card {
+        background-color: #fff;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,.04);
+        transition: box-shadow 0.2s ease;
+    }
+    .notification-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .notification-card.unread { background-color: #f8f9fa; border-left: 3px solid #0F6F84; }
+
+    .notification-icon { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+    .icon-approval { background-color: #d1fae5; color: #065f46; }
+    .icon-message { background-color: #ffe4e6; color: #be123c; }
+    .icon-alert { background-color: #fef3c7; color: #b45309; }
+
+    .notification-title { font-weight: 600; font-size: 0.95rem; color: #343a40; }
+    .notification-desc { font-size: 0.85rem; color: #495057; margin-bottom: 0.25rem;}
+    .notification-time { font-size: 0.75rem; color: #6c757d; }
+
+    .status-indicator { font-size: 0.8rem; font-weight: 500; }
+    .status-read { color: #6c757d; }
+    .status-unread { color: #0F6F84; }
+
+    .btn-view-notification { font-size: 0.8rem; background-color: #0F6F84; border-color: #0F6F84; color: white; padding: 0.25rem 0.75rem; }
+    .btn-view-notification:hover { background-color: #0B5B6D; border-color: #0B5B6D;}
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3 pt-1 pb-2 notifications-header">
+    <h1 class="h2 mb-0">@ViewData["Title"]</h1>
+     @* <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+         <i class="fa fa-arrow-left me-1"></i> Back to Dashboard
+     </a> *@
+</div>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center search-and-actions">
+    <nav class="nav nav-tabs-filters mb-2 mb-md-0">
+        <a class="nav-link @GetFilterClass("all")" asp-action="Notifications" asp-route-filter="All" asp-route-search="@currentSearch">All (@countAll)</a>
+        <a class="nav-link @GetFilterClass("unread")" asp-action="Notifications" asp-route-filter="Unread" asp-route-search="@currentSearch">Unread (@countUnread)</a>
+        <a class="nav-link @GetFilterClass("approvals")" asp-action="Notifications" asp-route-filter="Approvals" asp-route-search="@currentSearch">Approvals (@countApprovals)</a>
+        <a class="nav-link @GetFilterClass("messages")" asp-action="Notifications" asp-route-filter="Messages" asp-route-search="@currentSearch">Messages (@countMessages)</a>
+        <a class="nav-link @GetFilterClass("system alerts")" asp-action="Notifications" asp-route-filter="System Alerts" asp-route-search="@currentSearch">System Alerts (@countSystemAlerts)</a>
+    </nav>
+    <div class="d-flex align-items-center">
+        <form asp-action="Notifications" method="get" class="me-2">
+            <input type="hidden" name="filter" value="@currentFilter" />
+            <div class="input-group input-group-sm">
+                 <span class="input-group-text bg-light border-0 text-muted"><i class="fa fa-search"></i></span>
+                <input type="search" class="form-control form-control-sm bg-light border-0" name="search" value="@currentSearch" placeholder="Search notifications...">
+            </div>
+        </form>
+         @if (countUnread > 0)
+         {
+             <form asp-action="MarkAllNotificationsRead" method="post" class="d-inline">
+                 @Html.AntiForgeryToken()
+                 <button type="submit" class="btn btn-sm btn-mark-all">Mark all as read</button>
+             </form>
+         }
+    </div>
+</div>
+
+<div>
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-5">
+                 <i class="fa fa-bell-slash fa-3x mb-3 text-secondary"></i>
+                <p>
+                    @if(!string.IsNullOrEmpty(currentSearch)) {
+                        @:No notifications found matching "@currentSearch".
+                    } else if (currentFilter != "all") {
+                         @:No notifications found in the "@currentFilter" filter.
+                    } else {
+                         @:You have no notifications.
+                    }
+                </p>
+                 @if (!string.IsNullOrEmpty(currentSearch) || currentFilter != "all") {
+                     <a asp-action="Notifications" asp-route-filter="All" class="btn btn-sm btn-outline-secondary mt-2">Show All Notifications</a>
+                 }
+            </div>
+        </div>
+    }
+    else
+    {
+        @foreach (var notification in Model)
+        {
+            string iconClass = "fa-message";
+            string iconBgClass = "icon-message";
+            if (notification.Title.Contains("Verification", StringComparison.OrdinalIgnoreCase) || notification.Title.Contains("Approval", StringComparison.OrdinalIgnoreCase)) {
+                iconClass = "fa-check-double"; iconBgClass = "icon-approval";
+            } else if (notification.Type.Equals("alert", StringComparison.OrdinalIgnoreCase)) {
+                iconClass = "fa-triangle-exclamation"; iconBgClass = "icon-alert";
+            }
+
+            <div class="notification-card @(notification.IsUnread ? "unread" : "")">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                         <div class="notification-icon @iconBgClass">
+                             <i class="fa @iconClass fa-sm"></i>
+                         </div>
+                    </div>
+                    <div class="col">
+                        <h6 class="notification-title mb-0">@notification.Title</h6>
+                        <p class="notification-desc">@notification.Description</p>
+                        <p class="notification-time mb-0">@TimeHelper.TimeAgo(notification.TimestampDateTime)</p>
+                    </div>
+                    <div class="col-auto text-end">
+                         @if (notification.IsUnread) {
+                             <span class="status-indicator status-unread d-block mb-1">Unread</span>
+                         } else {
+                              <span class="status-indicator status-read d-block mb-1">Read</span>
+                         }
+                         <button type="button" class="btn btn-view-notification" data-bs-toggle="modal" data-bs-target="#notificationDetailModal" data-id="@notification.Id">
+                             View
+                         </button>
+                         @if(notification.IsUnread) {
+                             <form asp-action="MarkNotificationRead" method="post" class="d-inline ms-1">
+                                 @Html.AntiForgeryToken()
+                                 <input type="hidden" name="notificationId" value="@notification.Id"/>
+                                 <input type="hidden" name="currentFilter" value="@currentFilter"/>
+                                 <button type="submit" class="btn btn-xs btn-outline-secondary" title="Mark Read"><i class="fa fa-check"></i></button>
+                             </form>
+                         }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="modal fade" id="notificationDetailModal" tabindex="-1" aria-labelledby="notificationDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notificationDetailModalLabel">Notification Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="notificationDetailBody">
+        <p>Loading...</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+         <form id="modalMarkReadForm" asp-action="MarkNotificationRead" method="post" class="d-inline">
+             @Html.AntiForgeryToken()
+             <input type="hidden" name="notificationId" id="modalNotificationId" value=""/>
+             <input type="hidden" name="currentFilter" value="@currentFilter"/>
+             <button type="submit" class="btn btn-sm btn-outline-primary">Mark as Read</button>
+         </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            const detailModalEl = document.getElementById('notificationDetailModal');
+            const detailModal = new bootstrap.Modal(detailModalEl);
+            const modalBody = $('#notificationDetailBody');
+            const modalTitle = $('#notificationDetailModalLabel');
+            const modalNotificationId = $('#modalNotificationId');
+            const modalMarkReadForm = $('#modalMarkReadForm');
+
+             detailModalEl.addEventListener('show.bs.modal', function (event) {
+                const button = $(event.relatedTarget);
+                const notificationId = button.data('id');
+                 const card = button.closest('.notification-card');
+                 const title = card.find('.notification-title').text();
+                 const desc = card.find('.notification-desc').text();
+                 const time = card.find('.notification-time').text();
+                 const isUnread = card.hasClass('unread');
+
+                 modalTitle.text(title);
+                 modalBody.html(`
+                     <p>${desc}</p>
+                     <p class="small text-muted mb-0">Received: ${time}</p>
+                 `);
+                 modalNotificationId.val(notificationId);
+                 modalMarkReadForm.toggle(isUnread);
+             });
+
+             modalMarkReadForm.on('submit', function(e){
+                 e.preventDefault();
+                 const form = $(this);
+                 const notificationId = modalNotificationId.val();
+                 const button = form.find('button[type="submit"]');
+                 button.prop('disabled', true).prepend('<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>');
+
+                 $.ajax({
+                     url: form.attr('action'),
+                     type: 'POST',
+                     headers: { 'RequestVerificationToken': form.find('input[name="__RequestVerificationToken"]').val() },
+                     data: form.serialize(),
+                     success: function(response) {
+                         if (response.success) {
+                             detailModal.hide();
+                              const card = $(`.notification-card button[data-id='${notificationId}']`).closest('.notification-card');
+                              card.removeClass('unread');
+                              card.find('.status-unread').removeClass('status-unread').addClass('status-read').text('Read');
+                              card.find('form[action$="MarkNotificationRead"]').remove();
+
+                              alert('Marked as read.');
+                         } else {
+                              alert('Error: ' + (response.message || 'Could not mark as read.'));
+                         }
+                     },
+                     error: function(xhr) {
+                         console.error("Mark Read Error:", xhr.responseText);
+                         alert('An error occurred.');
+                     },
+                     complete: function() {
+                          button.prop('disabled', false).find('.spinner-border').remove();
+                     }
+                 });
+             });
+        });
+    </script>
+}

@@ -1,0 +1,15 @@
+# Firebase Admin Credentials
+skills-audit-db-firebase-adminsdk-fbsvc-32e4a20d2c.json
+
+# User specific IDE files
+*.csproj.user
+
+# Local build output
+[Bb]in/
+[Oo]bj/
+
+# .NET User Secrets
+/secrets.json
+
+# Environment-specific settings
+appsettings.Development.json

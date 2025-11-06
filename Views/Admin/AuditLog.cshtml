@@ -1,0 +1,210 @@
+﻿@model List<Capableza.Web.Models.AuditLog>
+@using Capableza.Web.Helpers
+@{
+    ViewData["Title"] = "Audit Log";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@functions {
+
+    private string FormatLogAction(string action)
+    {
+        switch (action.ToLower())
+        {
+            case "skilladded": return "added a skill";
+            case "skillupdated": return "updated a skill";
+            case "skilldeleted": return "deleted a skill";
+            case "qualificationadded": return "added a qualification";
+            case "qualificationupdated": return "updated a qualification";
+            case "qualificationdeleted": return "deleted a qualification";
+            case "qualificationverified": return "verified a qualification";
+            case "qualificationrejected": return "rejected a qualification";
+            case "trainingadded": return "added a training record";
+            case "trainingupdated": return "updated a training record";
+            case "trainingdeleted": return "deleted a training record";
+            case "trainingapproved": return "approved a training";
+            case "trainingrejected": return "rejected a training";
+            case "profileupdated": return "updated their profile";
+            case "profilepictureupdated": return "updated their profile picture";
+            case "profilepicturedeleted": return "removed their profile picture";
+            case "employeeadded": return "added a new employee";
+            case "employeedeleted": return "deleted an employee";
+            case "reportgenerated": return "generated a report";
+            case "reportdeleted": return "deleted a report";
+            case "webloginsuccess": return "logged into the web portal";
+            case "webloginfail": return "had a failed web login";
+            case "supportmessagesent": return "sent a support message";
+            default: return action;
+        }
+    }
+
+    private string FormatLogTarget(string action, string target)
+    {
+        string[] namePrefixes = {
+                                   "Added skill", "Updated skill", "Added qualification", "Updated qualification",
+                                   "Added training", "Updated training", "Type:", "Training"
+                                   };
+        foreach (var prefix in namePrefixes)
+        {
+            if (target.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return $": {target.Substring(prefix.Length).Trim()}";
+            }
+        }
+        string[] idPrefixes = {
+                                   "Deleted qualification ID", "Deleted skill ID", "Deleted training ID",
+                                   "Verified qualification ID", "Rejected qualification ID",
+                                   "Approved training ID", "Rejected training ID",
+                                   "Deleted employee", "Report ID", "Skill ID" 
+                                   };
+        foreach (var prefix in idPrefixes)
+        {
+            if (target.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return $" (Ref ID: {target.Substring(prefix.Length).Trim()})";
+            }
+        }
+        string[] ignoreTargetActions = {
+                                   "profileupdated", "profilepictureupdated", "profilepicturedeleted",
+                                   "supportmessagesent", "webloginsuccess", "skills", 
+                                   "qualifications", "trainings" 
+                                   };
+        if (ignoreTargetActions.Contains(action.ToLower()) || ignoreTargetActions.Contains(target.ToLower()))
+        {
+            return "";
+        }
+        if (target.StartsWith("Profile created for", StringComparison.OrdinalIgnoreCase))
+        {
+            return $"({target})";
+        }
+        return $": {target}";
+    }
+}
+
+<style>
+.header-actions .input-group-sm .form-control,
+.header-actions .input-group-sm .input-group-text {
+    font-size: 0.8rem;
+    border-radius: 0.375rem;
+}
+
+.audit-table-card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    overflow: hidden;
+}
+
+.audit-table thead th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: #0F6F84;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    vertical-align: middle;
+}
+
+.audit-table tbody td {
+    vertical-align: middle;
+    font-size: 0.9rem;
+    border-top: 1px solid #dee2e6;
+    padding: 0.75rem 1rem;
+    word-break: break-word;
+}
+
+.audit-table tbody tr:first-child td {
+    border-top: none;
+}
+
+.log-timestamp {
+    font-size: 0.85rem;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.log-actor {
+    font-weight: 600;
+    color: #0F6F84;
+}
+
+.log-action {
+    font-weight: 500;
+    color: #343a40;
+}
+
+.log-target {
+    color: #495057;
+    font-style: italic;
+}
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+    <div class="d-flex align-items-center header-actions">
+        <div class="input-group input-group-sm me-2 d-none d-md-flex" style="max-width: 300px;">
+            <span class="input-group-text bg-light border-0 text-muted"><i class="fa fa-search"></i></span>
+            <input type="text" id="auditSearchInput" class="form-control form-control-sm bg-light border-0" placeholder="Search logs (action, target, user)...">
+        </div>
+         <a asp-action="Settings" class="btn btn-sm btn-outline-secondary">
+             <i class="fa fa-arrow-left me-1"></i> Back to Settings
+         </a>
+    </div>
+</div>
+
+
+@if (!Model.Any())
+{
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-5">
+                 <i class="fa fa-history fa-3x mb-3 text-secondary"></i>
+                <p>No audit log entries found.</p>
+            </div>
+        </div>
+}
+else
+{
+        <div class="card audit-table-card shadow-sm">
+            <div class="table-responsive">
+                <table class="table audit-table mb-0 align-middle table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Timestamp</th>
+                            <th style="width: 80%;">Log Entry</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                                <tr class="audit-table-row">
+                                    <td class="log-timestamp">
+                                        @TimeHelper.TimeAgo(item.TimestampDateTime)
+                                    </td>
+                                    <td>
+                                        <span class="log-actor">@item.PerformedByName</span>
+                                        <span class="log-action">@FormatLogAction(item.Action)</span>
+                                        <span class="log-target">@FormatLogTarget(item.Action, item.ActionTarget)</span>
+                                    </td>
+                                </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+}
+
+
+@section Scripts {
+        <script>
+            $(document).ready(function() {
+                $('#auditSearchInput').on('keyup', function() {
+                    var value = $(this).val().toLowerCase().trim();
+                    $('.audit-table-row').filter(function() {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                    });
+                });
+            });
+        </script>
+}

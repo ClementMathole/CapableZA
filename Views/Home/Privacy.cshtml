@@ -1,0 +1,120 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .privacy-card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+
+        .privacy-card h5 {
+            color: #0F6F84;
+            font-weight: 600;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .privacy-card p, .privacy-card ul {
+            font-size: 0.95rem;
+            color: #495057;
+            line-height: 1.7;
+        }
+
+        .privacy-card ul {
+            padding-left: 2rem;
+        }
+
+        .privacy-card li {
+            margin-bottom: 0.5rem;
+        }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card privacy-card shadow-sm mb-4">
+                <div class="card-body p-4 p-md-5">
+
+                    <h1 class="h2 mb-3">@ViewData["Title"]</h1>
+                    <p class="text-muted">Last Updated: @DateTime.Now.ToString("MMMM dd, yyyy")</p>
+
+                    <hr class="my-4">
+
+                    <p>
+                        This Privacy Policy describes how the National Treasury Skills Audit System collects, uses, and protects your personal information. This policy applies to all registered users of this system.
+                    </p>
+
+                    <h5>1. Information We Collect</h5>
+                    <p>
+                        We collect and process personal information that you provide directly to us when you create an account, update your profile, and use the system's features. This information includes, but is not limited to:
+                    </p>
+                    <ul>
+                        <li><b>Personal Identification Information:</b> Full name, email address, South African ID Number.</li>
+                        <li><b>Employment Information:</b> Job title, role, and department.</li>
+                        <li><b>Professional Development Information:</b> Skills, proficiency levels, qualifications, certifications, training records, and associated documents you upload.</li>
+                        <li><b>System Usage Data:</b> Audit logs of actions you perform, login timestamps, and IP addresses for security purposes.</li>
+                    </ul>
+
+                    <h5>2. How We Use Your Information</h5>
+                    <p>
+                        Your personal information is used exclusively for the following official purposes:
+                    </p>
+                    <ul>
+                        <li>To create and manage your user account.</li>
+                        <li>To maintain a central record of employee skills and qualifications for internal planning, reporting, and workforce development.</li>
+                        <li>To facilitate the verification of qualifications and approval of training by administrators.</li>
+                        <li>To generate aggregated, anonymized reports on skills inventory, skill gaps, and training needs.</li>
+                        <li>To communicate with you regarding your profile, submissions, or system updates.</li>
+                        <li>To ensure the security and integrity of the portal via audit logging.</li>
+                    </ul>
+
+                    <h5>3. Data Storage and Security</h5>
+                    <p>
+                        We are committed to protecting your information. Your data is stored on secure cloud infrastructure with access controls in place. We implement appropriate technical and organizational measures to prevent unauthorized access, disclosure, alteration, or destruction of your personal information.
+                    </p>
+                    <p>
+                        Uploaded documents (e.g., qualification certificates) are stored in a secure cloud storage bucket with restricted access.
+                    </p>
+
+                    <h5>4. Information Sharing and Disclosure</h5>
+                    <p>
+                        Your personal information is treated as confidential and is intended strictly for internal National Treasury use. We do not sell, trade, or otherwise transfer your personally identifiable information to outside parties.
+                    </p>
+                    <p>
+                        Access to your detailed profile is restricted to:
+                    </p>
+                    <ul>
+                        <li>Yourself.</li>
+                        <li>Authorized administrators (e.g., HR, line managers) for the purposes of verification, management, and reporting.</li>
+                    </ul>
+                    <p>
+                        Aggregated or anonymized data may be used for statistical analysis and strategic reporting.
+                    </p>
+
+                    <h5>5. Your Rights and Responsibilities</h5>
+                    <p>
+                        You have the right to access and update your profile information at any time via the "My Profile" page. It is your responsibility to ensure that the information you provide, particularly regarding your qualifications and skills, is accurate and up-to-date.
+                    </p>
+                    <p>
+                        You are responsible for maintaining the confidentiality of your password. Do not share your login credentials with anyone.
+                    </p>
+
+                    <h5>6. Changes to This Privacy Policy</h5>
+                    <p>
+                        We may update this Privacy Policy from time to time to reflect changes in our practices or for other operational, legal, or regulatory reasons. We will notify you of any significant changes by posting the new policy on this page and, where appropriate, through other communication channels.
+                    </p>
+
+                    <h5>7. Contact Us</h5>
+                    <p>
+                        If you have any questions or concerns about this Privacy Policy or our data handling practices, please
+                        <a asp-action="Contact" class="text-decoration-none" style="color: #0F6F84; font-weight: 500;">contact the portal support team</a>.
+                    </p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

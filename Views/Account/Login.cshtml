@@ -1,0 +1,143 @@
+﻿@model Capableza.Web.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Portal Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: calc(100vh - 180px);
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+
+    .login-card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.3rem 1rem rgba(0,0,0,.08);
+        overflow: hidden;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+        .login-header img {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 1rem;
+        }
+
+        .login-header h1 {
+            color: #0F6F84;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+
+    .form-floating > .form-control {
+        height: calc(3.5rem + 2px);
+        line-height: 1.25;
+    }
+
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+    .form-control:focus {
+        border-color: #0F6F84;
+        box-shadow: 0 0 0 0.2rem rgba(15, 111, 132, 0.25);
+    }
+
+    .form-check-input:checked {
+        background-color: #0F6F84;
+        border-color: #0F6F84;
+    }
+
+    .btn-login {
+        background-color: #0F6F84;
+        border-color: #0F6F84;
+        color: white;
+        padding: 0.75rem;
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+        .btn-login:hover {
+            background-color: #0B5B6D;
+            border-color: #0B5B6D;
+        }
+
+    .forgot-password-link {
+        color: #0F6F84;
+        font-size: 0.85rem;
+    }
+
+        .forgot-password-link:hover {
+            color: #0B5B6D;
+        }
+
+    .text-danger {
+        font-size: 0.8rem;
+    }
+
+</style>
+
+<div class="login-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7 col-sm-9">
+
+            <div class="login-header">
+                <img src="~/images/capableza.jpg" alt="Portal Logo" class="rounded-circle">
+                <h1>Portal Login</h1>
+                <p class="text-center text-muted small mb-4">Please sign in with your employee credentials.</p>
+            </div>
+
+            <div class="card login-card">
+                <div class="card-body p-4 p-md-5">
+
+                    <form id="account" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="All" class="text-danger mb-3 small"></div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                            <label asp-for="Email" class="form-label">Email address</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input asp-for="Password" type="password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Password" />
+                            <label asp-for="Password" class="form-label">Password</label>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check mb-0">
+                                <input class="form-check-input" type="checkbox" asp-for="RememberMe" id="rememberMeCheck">
+                                <label class="form-check-label small" asp-for="RememberMe"> @Html.DisplayNameFor(m => m.RememberMe) </label>
+                            </div>
+                            <a asp-action="ForgotPassword" class="forgot-password-link text-decoration-none">Forgot password?</a>
+                        </div>
+
+                        <div class="d-grid">
+                            <button id="login-submit" type="submit" class="btn btn-login">
+                                Login
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

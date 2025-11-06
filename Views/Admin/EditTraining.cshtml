@@ -1,0 +1,255 @@
+﻿@model Capableza.Web.Models.AssignedTraining
+@using Capableza.Web.Models
+@{
+    ViewData["Title"] = "Edit Training";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var employees = ViewBag.Employees as List<EmployeeProfile> ?? new List<EmployeeProfile>();
+    var sortedEmployees = employees.OrderBy(e => e.LastName).ThenBy(e => e.FirstName).ToList();
+    var assignedIds = Model.AssignedTo ?? new List<string>();
+}
+
+<style>
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .form-control, .form-select {
+        font-size: 0.95rem;
+        border-color: #ced4da;
+        border-radius: 0.375rem;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+    .btn-primary-teal {
+        background-color: #0F6F84;
+        border-color: #0F6F84;
+        color: white;
+    }
+
+        .btn-primary-teal:hover {
+            background-color: #0B5B6D;
+            border-color: #0B5B6D;
+        }
+
+    .text-danger {
+        font-size: 0.8rem;
+    }
+
+    .employee-list-container {
+        max-height: 350px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+        border-radius: 0.375rem;
+        background-color: #fff;
+    }
+
+        .employee-list-container .form-check {
+            padding-top: 0.3rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid #f1f1f1;
+        }
+
+            .employee-list-container .form-check:last-child {
+                border-bottom: none;
+            }
+
+        .employee-list-container .form-check-label {
+            font-size: 0.9rem;
+        }
+
+            .employee-list-container .form-check-label small {
+                color: #6c757d;
+                display: block;
+                font-size: 0.8rem;
+            }
+
+    .selection-controls {
+        margin-bottom: 0.5rem;
+    }
+
+        .selection-controls .btn-link {
+            font-size: 0.8rem;
+            text-decoration: none;
+            padding: 0.2rem 0.5rem;
+        }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3 pt-1 pb-2 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+    <a asp-action="Trainings" class="btn btn-sm btn-outline-secondary">
+        <i class="fa fa-arrow-left me-1"></i> Back to Training List
+    </a>
+</div>
+
+<form asp-action="EditTraining" method="post">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+
+    <div asp-validation-summary="All" class="text-danger mb-3 small"></div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-3">
+                    <h5 class="mb-0 card-title">Training Information</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label"></label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g., Advanced Communication Skills" required />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Provider" class="form-label"></label>
+                        <input asp-for="Provider" class="form-control" placeholder="e.g., Internal HR or External Provider" required />
+                        <span asp-validation-for="Provider" class="text-danger"></span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="StartDate" class="form-label"></label>
+                            <input asp-for="StartDate" type="date" class="form-control" required />
+                            <span asp-validation-for="StartDate" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="EndDate" class="form-label"></label>
+                            <input asp-for="EndDate" type="date" class="form-control" required />
+                            <span asp-validation-for="EndDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Level" class="form-label"></label>
+                            <select asp-for="Level" class="form-select" required>
+                                <option value="">-- Select Level --</option>
+                                <option>Beginner</option>
+                                <option>Intermediate</option>
+                                <option>Advanced</option>
+                            </select>
+                            <span asp-validation-for="Level" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select" required>
+                                <option value="">-- Select Status --</option>
+                                <option>Upcoming</option>
+                                <option>On-Going</option>
+                                <option>Completed</option>
+                            </select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 card-title">Assigned Employees</h5>
+                    <span id="selection-count" class="badge bg-secondary rounded-pill">0 Selected</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-2">
+                        <input type="text" id="employeeSearch" class="form-control form-control-sm" placeholder="Search employees...">
+                    </div>
+                    <div class="d-flex justify-content-between selection-controls">
+                        <button type="button" class="btn btn-link p-0" id="selectAllBtn">Select All</button>
+                        <button type="button" class="btn btn-link p-0" id="deselectAllBtn">Deselect All</button>
+                    </div>
+                    <div class="employee-list-container mb-3" id="employeeList">
+                        @if (sortedEmployees.Any())
+                        {
+                            @foreach (var emp in sortedEmployees)
+                            {
+                                var isChecked = assignedIds.Contains(emp.Uid);
+                                <div class="form-check employee-item" data-name="@emp.FullName.ToLower()" data-email="@emp.Email.ToLower()">
+                                    <input class="form-check-input employee-checkbox" type="checkbox" name="AssignedTo" value="@emp.Uid" id="emp_@emp.Uid" @(isChecked ? "checked" : "")>
+                                    <label class="form-check-label" for="emp_@emp.Uid">
+                                        @emp.FullName <small>(@emp.Email)</small>
+                                    </label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted small text-center m-0">No employees available.</p>
+                        }
+                    </div>
+                    <span asp-validation-for="AssignedTo" class="text-danger d-block"></span>
+                    <small class="form-text text-muted">Update which employees are assigned to this training.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex justify-content-end gap-2 border-top pt-3">
+        <a asp-action="Trainings" class="btn btn-outline-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary-teal">
+            <i class="fa fa-save me-1"></i> Update Training
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            const employeeList = $('#employeeList');
+            const checkboxes = employeeList.find('.employee-checkbox');
+            const selectionCountBadge = $('#selection-count');
+            const searchInput = $('#employeeSearch');
+
+            function updateSelectionCount() {
+                const count = checkboxes.filter(':checked').length;
+                selectionCountBadge.text(count + ' Selected');
+            }
+
+            function filterEmployees() {
+                const searchTerm = searchInput.val().toLowerCase();
+                employeeList.find('.employee-item').each(function() {
+                    const item = $(this);
+                    const name = item.data('name') || '';
+                    const email = item.data('email') || '';
+                    const isVisible = name.includes(searchTerm) || email.includes(searchTerm);
+                    item.toggle(isVisible);
+                });
+            }
+
+            updateSelectionCount();
+
+            checkboxes.on('change', updateSelectionCount);
+
+            searchInput.on('keyup', filterEmployees);
+
+            $('#selectAllBtn').on('click', function() {
+                employeeList.find('.employee-item:visible .employee-checkbox').prop('checked', true);
+                updateSelectionCount();
+            });
+
+            $('#deselectAllBtn').on('click', function() {
+                employeeList.find('.employee-item:visible .employee-checkbox').prop('checked', false);
+                updateSelectionCount();
+            });
+        });
+    </script>
+}

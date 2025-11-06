@@ -1,0 +1,92 @@
+﻿@model Capableza.Web.ViewModels.AddEmployeeViewModel
+@{
+    ViewData["Title"] = "Add New Employee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card { border: none; border-radius: 0.75rem; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075); }
+    .card-header { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #495057;}
+    .form-label { font-size: 0.9rem; font-weight: 500; color: #495057; }
+    .form-control, .form-select { font-size: 0.95rem; border-color: #ced4da; border-radius: 0.375rem; }
+    .form-control:focus, .form-select:focus { border-color: #86b7fe; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
+    .btn-primary-teal { background-color: #0F6F84; border-color: #0F6F84; color: white; }
+    .btn-primary-teal:hover { background-color: #0B5B6D; border-color: #0B5B6D; }
+    .text-danger { font-size: 0.8rem; }
+    .info-panel { background-color: #e9ecef; border-radius: 0.5rem; }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3 pt-1 pb-2 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+    <a asp-action="Employees" class="btn btn-sm btn-outline-secondary">
+        <i class="fa fa-arrow-left me-1"></i> Back to Employee List
+    </a>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-7 col-lg-8">
+        <div class="card shadow-sm">
+             <div class="card-header py-3">
+                 <h5 class="mb-0 card-title">New Employee Details</h5>
+             </div>
+            <div class="card-body p-4">
+                <form asp-action="AddEmployee" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="text-danger mb-3 small"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FirstName" class="form-label"></label>
+                            <input asp-for="FirstName" class="form-control" placeholder="Enter first name" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="LastName" class="form-label"></label>
+                            <input asp-for="LastName" class="form-control" placeholder="Enter last name"/>
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="name@example.com"/>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" type="password" class="form-control" placeholder="password123" aria-describedby="passwordHelp"/>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                        <div id="passwordHelp" class="form-text small text-muted">Minimum 6 characters. The employee will use this for their initial login.</div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Employees" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary-teal">
+                            <i class="fa fa-user-plus me-1"></i> Add Employee
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5 col-lg-4">
+         <div class="info-panel p-4 h-100 d-flex flex-column justify-content-center align-items-center text-center">
+             <i class="fa fa-info-circle fa-3x text-secondary mb-3"></i>
+             <h6 class="fw-bold mb-2">Initial Setup</h6>
+             <p class="small text-muted mb-1">
+                 Enter the employee's basic details and a secure temporary password.
+             </p>
+              <p class="small text-muted mb-1">
+                 The employee will log in using these credentials and will be required to complete their profile (ID Number, Job Title) to gain full access.
+             </p>
+         </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

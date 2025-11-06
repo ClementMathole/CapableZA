@@ -1,0 +1,366 @@
+﻿@using System.Security.Claims
+@using Capableza.Web.Models
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var employeeCount = ViewBag.EmployeeCount ?? 0;
+    var trainingCount = ViewBag.TrainingCount ?? 0;
+    var pendingApprovalCount = ViewBag.PendingApprovalCount ?? 0;
+    var reportCount = ViewBag.ReportCount ?? 0;
+    var pendingVerifications = ViewBag.PendingVerifications as List<Qualification> ?? new List<Qualification>();
+    var recentLogs = ViewBag.RecentLogs as List<AuditLog> ?? new List<AuditLog>();
+}
+
+<header class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-2 mb-3 border-bottom">
+    <div>
+        <h1 class="h2">Dashboard</h1>
+        <p class="text-muted mb-0 small">Overview of system activity</p>
+    </div>
+    <div class="d-flex align-items-center">
+        <div class="input-group input-group-sm me-2 d-none d-md-flex" style="max-width: 250px;">
+            <span class="input-group-text bg-light border-0 text-muted"><i class="fa fa-search"></i></span>
+            <input type="text" class="form-control form-control-sm bg-light border-0" placeholder="Search employees, skills...">
+        </div>
+        <a asp-action="Employees" asp-controller="Admin" class="btn btn-sm btn-primary add-employee-btn">
+            <i class="fa fa-plus me-1"></i> Add Employee
+        </a>
+        <div class="ms-3 d-flex align-items-center border-start ps-3">
+            <div class="avatar-initials me-2" style="width: 32px; height: 32px; background-color: #0F6F84; color: white;">AD</div>
+            <div>
+                <span class="fw-bold d-block small">Admin</span>
+                <span class="text-muted d-block" style="font-size: 0.75rem;">@User.FindFirstValue(ClaimTypes.Email)</span>
+            </div>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUserAdmin" data-bs-toggle="dropdown" aria-expanded="false">
+                </a>
+                <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUserAdmin">
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form asp-controller="Account" asp-action="Logout" method="post" id="logoutFormAdmin" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="dropdown-item btn btn-link text-danger text-start w-100">
+                                <i class="fa fa-sign-out-alt fa-fw me-1"></i> Sign out
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="row g-4">
+    <div class="col-lg-4 d-flex flex-column gap-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 pt-3 pb-2">
+                <h5 class="card-title mb-0">Quick Stats</h5>
+                <span class="badge bg-success-subtle text-success-emphasis rounded-pill fw-normal small px-2 py-1">Updated: Today</span>
+            </div>
+            <div class="card-body pt-2">
+                <div class="row text-center">
+                    <div class="col-6 mb-3 border-end">
+                        <div class="stat-number">@employeeCount</div>
+                        <div class="stat-label">Total Employees</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="stat-number">@trainingCount</div>
+                        <div class="stat-label">Trainings</div>
+                    </div>
+                    <div class="col-6 border-end">
+                        <div class="stat-number">@pendingApprovalCount</div>
+                        <div class="stat-label">Pending Approvals</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-number">@reportCount</div>
+                        <div class="stat-label">Reports Generated</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0 pt-3 pb-2"><h5 class="card-title mb-0">Quick Actions</h5></div>
+            <div class="card-body">
+                <form asp-action="GenerateReport" method="post" class="d-grid">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="reportType" value="Skills overview" />
+                    <input type="hidden" name="positionOrRole" value="All Positions" />
+                    <input type="hidden" name="dateRange" value="Last 30 Days" />
+                    <button type="submit" class="btn btn-primary btn-generate-report">Generate Skills Report</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 d-flex flex-column gap-4">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 pt-3 pb-2">
+                <h5 class="card-title mb-0">Skills Analysis</h5>
+                <span class="text-muted small">Last 30 days</span>
+            </div>
+            <div class="card-body pt-2">
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <h6 class="text-center mb-2 fw-semibold">Skills Distribution</h6>
+                        <div class="chart-container" style="height:200px">
+                            <canvas id="skillsDistributionChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <h6 class="text-center mb-2 fw-semibold">Skill Growth Over Time</h6>
+                        <div class="chart-container" style="height:200px">
+                            <canvas id="skillGrowthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-white border-0 pt-3 pb-2"><h5 class="card-title mb-0">Skill Gap Analysis</h5></div>
+            <div class="card-body d-flex justify-content-between align-items-center py-3">
+                <p class="text-muted mb-0 small">View growth and potential skill shortages across teams.</p>
+                <a href="#" class="btn btn-sm btn-outline-primary disabled view-report-btn">View Report</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-2">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header d-flex justify-content-between align-items-center bg-white border-0 pt-3 pb-2">
+                <h5 class="card-title mb-0">Pending Verifications</h5>
+                <span class="badge bg-light text-secondary rounded-pill fw-normal small px-2 py-1">@pendingVerifications.Count items</span>
+            </div>
+            <div class="card-body pt-2">
+                @if (pendingVerifications.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var qual in pendingVerifications)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0 me-2">
+                                        @if (!string.IsNullOrWhiteSpace(qual.ProfilePicture))
+                                        {
+                                            <img src="@Url.Action("ViewEmployeeProfilePicture", "Admin", new { id = qual.EmployeeId })"
+                                                 alt="@qual.EmployeeName"
+                                                 class="avatar-img">
+                                        }
+                                        else
+                                        {
+                                            <div class="avatar-initials">
+                                                @{
+                                                    string initials = string.Join("", qual.EmployeeName.Split(' ').Where(s => !string.IsNullOrEmpty(s)).Select(s => s[0])).ToUpper();
+                                                    if (initials.Length > 2) initials = initials.Substring(0, 2);
+                                                    else if (initials.Length == 0) initials = "??";
+                                                }
+                                                @initials
+                                            </div>
+                                        }
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold d-block small">@qual.EmployeeName</span>
+                                        <small class="text-muted d-block" style="font-size: 0.75rem;">Submitted: @qual.Title</small>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 ms-2">
+                                    <a asp-action="EmployeeDetails" asp-route-id="@qual.EmployeeId" class="btn btn-xs btn-view me-1">View</a>
+                                    <form asp-action="VerifyQualification" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="employeeId" value="@qual.EmployeeId" />
+                                        <input type="hidden" name="qualificationId" value="@qual.Id" />
+                                        <input type="hidden" name="currentFilter" value="Pending" />
+                                        <button type="submit" class="btn btn-xs btn-verify">Verify</button>
+                                    </form>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                    @if (ViewBag.PendingApprovalCount > 3)
+                    {
+                        <div class="text-center mt-2 pt-2 border-top">
+                            <a asp-action="Qualifications" asp-route-filter="Pending" class="small text-decoration-none link-primary">View All Pending &rarr;</a>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-muted text-center mt-3 small py-4">No pending verifications.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-3 pb-2"><h5 class="card-title mb-0">Recent System Events</h5></div>
+            <div class="card-body pt-2">
+                @if (recentLogs.Any())
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var log in recentLogs)
+                        {
+                            <li class="list-group-item px-0 py-2">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <p class="mb-0 small d-flex align-items-center">
+                                        <span class="event-dot @(log.Action.Contains("add", StringComparison.OrdinalIgnoreCase) ? "bg-warning" : (log.Action.Contains("update", StringComparison.OrdinalIgnoreCase) ? "bg-info" : "bg-secondary")) me-2"></span>
+                                        <span class="fw-bold">@log.PerformedByName:</span>
+                                        <span class="ms-1">@(log.ActionTarget.Length > 40 ? log.ActionTarget.Substring(0, 40) + "..." : log.ActionTarget)</span>
+                                    </p>
+                                    <small class="text-muted flex-shrink-0 ms-2" style="font-size: 0.75rem;">@log.TimestampDateTime.ToString("MMM dd HH:mm")</small>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                    <div class="text-center mt-2 pt-2 border-top">
+                        <a asp-action="AuditLog" class="small text-decoration-none link-primary">View Full Log &rarr;</a>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted text-center mt-3 small py-4">No recent events logged.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const skillDistCtx = document.getElementById('skillsDistributionChart');
+            if (skillDistCtx) {
+                 const skillDistLabels = @Html.Raw(ViewBag.SkillDistLabelsJson ?? "[]");
+                 const skillDistData = @Html.Raw(ViewBag.SkillDistDataJson ?? "[]");
+                const donutColors = ['#15803d', '#f97316', '#facc15', '#a1a1aa'];
+
+                if(skillDistLabels.length > 0 && skillDistData.length > 0) {
+                    new Chart(skillDistCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: skillDistLabels,
+                            datasets: [{
+                                label: 'Skills %',
+                                data: skillDistData, 
+                                backgroundColor: donutColors.slice(0, skillDistData.length),
+                                hoverOffset: 4,
+                                borderWidth: 0,
+                                spacing: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            let label = context.label || '';
+                                            if (label) { label += ': '; }
+                                            if (context.parsed !== null) {
+                                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                                const percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(0) + '%' : '0%';
+                                                label += `${percentage}`;
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
+                            },
+                            cutout: '70%'
+                        }
+                    });
+                     const legendContainer = document.getElementById('your-legend-container-id');
+                     if(legendContainer) {
+                        legendContainer.innerHTML = skillDistLabels.map((label, index) => `
+                            <div class="d-flex align-items-center me-3">
+                                <span class="d-inline-block rounded-circle me-1" style="width: 10px; height: 10px; background-color: ${donutColors[index % donutColors.length]}"></span>
+                                <small>${label} ${((skillDistData[index] / skillDistData.reduce((a,b)=>a+b,0)) * 100).toFixed(0)}%</small>
+                            </div>
+                        `).join('');
+                     }
+                     
+
+                } else {
+                    const ctx = skillDistCtx.getContext('2d');
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#6c757d';
+                    ctx.font = '12px sans-serif';
+                    ctx.fillText('No skill data', skillDistCtx.width / 2, skillDistCtx.height / 2);
+                }
+            }
+
+            const skillGrowthCtx = document.getElementById('skillGrowthChart');
+            if (skillGrowthCtx) {
+                const skillGrowthLabels = @Html.Raw(ViewBag.SkillGrowthLabelsJson ?? "[]");
+                const skillGrowthData = @Html.Raw(ViewBag.SkillGrowthDataJson ?? "[]");
+
+                if(skillGrowthLabels.length > 0 && skillGrowthData.length > 0) {
+                    new Chart(skillGrowthCtx, {
+                        type: 'line',
+                        data: {
+                            labels: skillGrowthLabels,
+                            datasets: [{
+                                label: 'Verified Skills',
+                                data: skillGrowthData,
+                                fill: false,
+                                borderColor: '#0F6F84',
+                                tension: 0.1,
+                                pointBackgroundColor: '#0F6F84',
+                                pointRadius: 4,
+                                borderWidth: 2
+                            }]
+                        },
+                         options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                             scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    grid: { drawBorder: false, color: '#e5e7eb' },
+                                    ticks: { padding: 10 }
+                                },
+                                x: {
+                                    grid: { display: false },
+                                    ticks: { padding: 10 }
+                                }
+                             },
+                             plugins: {
+                                 legend: {
+                                     display: true,
+                                     position: 'top',
+                                     align: 'end',
+                                     labels: {
+                                         boxWidth: 10,
+                                         padding: 10,
+                                         usePointStyle: true,
+                                         pointStyle: 'circle',
+                                         font: { size: 10 }
+                                     }
+                                 },
+                                 tooltip: {
+                                     mode: 'index',
+                                     intersect: false
+                                 }
+                             },
+                             interaction: {
+                                mode: 'nearest',
+                                axis: 'x',
+                                intersect: false
+                            }
+                        }
+                    });
+                } else {
+                     const ctx = skillGrowthCtx.getContext('2d');
+                     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#6c757d';
+                     ctx.font = '12px sans-serif';
+                     ctx.fillText('No growth data', skillGrowthCtx.width / 2, skillGrowthCtx.height / 2);
+                }
+            }
+        });
+    </script>
+}

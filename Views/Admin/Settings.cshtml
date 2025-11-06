@@ -1,0 +1,176 @@
+﻿@model Capableza.Web.ViewModels.ChangeAdminPasswordViewModel
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .form-control, .form-select {
+        font-size: 0.95rem;
+        border-color: #ced4da;
+        border-radius: 0.375rem;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+    .btn-primary-teal {
+        background-color: #0F6F84;
+        border-color: #0F6F84;
+        color: white;
+    }
+
+        .btn-primary-teal:hover {
+            background-color: #0B5B6D;
+            border-color: #0B5B6D;
+        }
+
+    .text-danger {
+        font-size: 0.8rem;
+    }
+
+    .list-group-item {
+        border-left: 0;
+        border-right: 0;
+    }
+
+        .list-group-item:first-child {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            border-top: 0;
+        }
+
+        .list-group-item:last-child {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+    .audit-log-view-btn{
+        background-color: #0F6F84;
+        color: white;
+    }
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header py-3">
+                <h5 class="mb-0 card-title">Account Security</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="small text-muted">Manage your administrator account settings.</p>
+                <form asp-action="ChangeAdminPassword" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="CurrentPassword" class="form-label"></label>
+                            <input asp-for="CurrentPassword" type="password" class="form-control" required />
+                            <span asp-validation-for="CurrentPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                        <div class="col-md-6">
+                            <label asp-for="NewPassword" class="form-label"></label>
+                            <input asp-for="NewPassword" type="password" class="form-control" required />
+                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" required />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary-teal mt-3">
+                        <i class="fa fa-key me-1"></i> Update Password
+                    </button>
+                </form>
+                <hr>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="twoFactorSwitch" disabled>
+                    <label class="form-check-label" for="twoFactorSwitch">Enable Two-Factor Authentication</label>
+                </div>
+            </div>
+        </div>
+
+        @* <div class="card shadow-sm mb-4">
+            <div class="card-header py-3">
+                <h5 class="mb-0 card-title">Portal Configuration</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <label for="defaultWelcomeMessage" class="form-label">Default Employee Welcome Message</label>
+                    <textarea class="form-control" id="defaultWelcomeMessage" rows="3" disabled>Welcome to the portal! Please complete your profile to unlock all features.</textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="reportRetention" class="form-label">Report Retention Policy (Days)</label>
+                    <input type="number" class="form-control" id="reportRetention" value="365" disabled>
+                </div>
+                <button type="button" class="btn btn-sm btn-primary-teal" disabled>Save Configuration</button>
+                <p class="small text-muted mt-2"><em>(Configuration functionality to be implemented)</em></p>
+            </div>
+        </div> *@
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header py-3">
+                <h5 class="mb-0 card-title">System Actions</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="small text-muted">Access system-wide logs and perform administrative actions.</p>
+                <div class="d-grid gap-2">
+                    <a asp-action="AuditLog" class="btn audit-log-view-btn">
+                        <i class="fa fa-history me-2"></i> View Audit Log
+                    </a>
+                    @* <button type="button" class="btn btn-outline-secondary" disabled>
+                        <i class="fa fa-upload me-2"></i> Import Employee Data
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" disabled>
+                        <i class="fa fa-download me-2"></i> Export All Data
+                    </button>
+                    <button type="button" class="btn btn-outline-danger mt-3" disabled>
+                        <i class="fa fa-exclamation-triangle me-2"></i> Clear System Cache
+                    </button> *@
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

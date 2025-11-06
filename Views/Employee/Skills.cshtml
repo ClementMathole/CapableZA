@@ -1,0 +1,294 @@
+﻿@model List<Capableza.Web.Models.Skill>
+@{
+    Layout = null;
+    ViewData["Title"] = "My Skills";
+    string employeeUid = ViewBag.EmployeeUid ?? "";
+    bool isAdminViewing = ViewBag.IsAdminViewing ?? false; 
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Capableza</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body { background-color: #f8f9fa; }
+        .card { border: none; border-radius: 0.75rem; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075); }
+        .card-header { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; color: #495057;}
+        .table thead th { font-weight: 600; color: #495057; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; background-color: #f8f9fa; border-bottom-width: 1px;}
+        .table tbody td { vertical-align: middle; font-size: 0.9rem; }
+        .badge { font-size: 0.75rem; padding: 0.3em 0.6em; }
+        .btn-primary-teal { background-color: #0F6F84; border-color: #0F6F84; color: white; }
+        .btn-primary-teal:hover { background-color: #0B5B6D; border-color: #0B5B6D; }
+        .btn-xs { padding: 0.15rem 0.5rem; font-size: 0.75rem; line-height: 1.4; }
+        .form-label-sm { font-size: 0.8rem; margin-bottom: 0.2rem; font-weight: 500;}
+        .form-control-sm, .form-select-sm, .form-range { font-size: 0.85rem; padding: 0.3rem 0.6rem; }
+        .modal-header { background-color: #f8f9fa; border-bottom-color: #dee2e6;}
+        .modal-title { font-size: 1.1rem; font-weight: 600; color: #343a40;}
+        .proficiency-label { font-size: 0.8rem; color: #6c757d;}
+    </style>
+</head>
+<body>
+
+<div class="container mt-4 mb-5">
+     @if (TempData["SuccessMessage"] != null) {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+     }
+     @if (TempData["ErrorMessage"] != null) {
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+     }
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>@ViewData["Title"]</h1>
+        <div>
+            <button type="button" class="btn btn-primary-teal btn-sm me-2" data-bs-toggle="modal" data-bs-target="#skillModal">
+                <i class="fa fa-plus me-1"></i> Add New Skill
+            </button>
+            <a asp-action="Dashboard" class="btn btn-sm btn-outline-secondary">
+                 <i class="fa fa-arrow-left me-1"></i> Back to Dashboard
+             </a>
+        </div>
+    </div>
+
+
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center text-muted py-5">
+                 <i class="fa fa-lightbulb fa-3x mb-3 text-secondary"></i>
+                <p>You haven't added any skills yet.</p>
+                <button type="button" class="btn btn-primary-teal btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#skillModal">
+                    Add Your First Skill
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+             <div class="card-header bg-light border-0 py-2">
+                 <span class="text-muted small">Your Skills List</span>
+             </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 30%;">Skill</th>
+                            <th style="width: 25%;">Category</th>
+                            <th style="width: 15%;" class="text-center">Proficiency</th>
+                            <th style="width: 15%;">Date Acquired</th>
+                            <th style="width: 15%;" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr id="skill-row-@item.Id">
+                                <td class="fw-medium">@item.SkillName</td>
+                                <td>@item.Category</td>
+                                <td class="text-center">
+                                    <span class="badge bg-info rounded-pill">@item.Proficiency%</span>
+                                </td>
+                                <td>@item.DateAcquired</td>
+                                <td class="text-end">
+                                    <button class="btn btn-xs btn-outline-secondary btn-edit-skill me-1"
+                                            data-id="@item.Id" data-name="@item.SkillName" data-category="@item.Category"
+                                            data-proficiency="@item.Proficiency" data-date="@item.DateAcquired"
+                                            data-bs-toggle="modal" data-bs-target="#skillModal" title="Edit">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-xs btn-outline-danger btn-delete-skill" data-id="@item.Id" title="Delete">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="modal fade" id="skillModal" tabindex="-1" aria-labelledby="skillModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="skillModalLabel">Add Skill</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="skillForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" id="skillId" value="" />
+                        <div id="modal-skill-validation-summary" class="text-danger small mb-2 d-none"></div>
+
+                        <div class="mb-3">
+                            <label for="skillName" class="form-label form-label-sm">Skill Name</label>
+                            <input type="text" class="form-control form-control-sm" id="skillName" required>
+                             <div class="invalid-feedback">Please enter the skill name.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="skillCategory" class="form-label form-label-sm">Category</label>
+                            <input type="text" class="form-control form-control-sm" id="skillCategory" required>
+                             <div class="invalid-feedback">Please enter a category.</div>
+                        </div>
+                         <div class="mb-3">
+                            <label for="skillProficiency" class="form-label form-label-sm">Proficiency: <span id="profValue" class="fw-bold">50</span>%</label>
+                            <input type="range" class="form-range" id="skillProficiency" min="0" max="100" step="5" value="50">
+                        </div>
+                        <div class="mb-3">
+                            <label for="skillDate" class="form-label form-label-sm">Date Acquired</label>
+                            <input type="date" class="form-control form-control-sm" id="skillDate" required>
+                             <div class="invalid-feedback">Please select the date acquired.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-sm btn-primary-teal" id="saveSkillButton">
+                         <span class="spinner-border spinner-border-sm me-1 d-none" role="status" aria-hidden="true"></span>
+                        Save Skill
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<partial name="_ValidationScriptsPartial" />
+<script>
+    $(document).ready(function () {
+        const skillModalEl = document.getElementById('skillModal');
+        const skillModal = new bootstrap.Modal(skillModalEl);
+        const form = $('#skillForm');
+        const saveButton = $('#saveSkillButton');
+        const profSlider = $('#skillProficiency');
+        const profValueSpan = $('#profValue');
+        const spinner = saveButton.find('.spinner-border');
+        const validationSummary = $('#modal-skill-validation-summary');
+
+        profSlider.on('input', function() { profValueSpan.text($(this).val()); });
+
+        skillModalEl.addEventListener('show.bs.modal', function (event) {
+            const button = $(event.relatedTarget);
+            const isEdit = button.hasClass('btn-edit-skill');
+            const modalTitle = $('#skillModalLabel');
+            form[0].reset();
+            form.find('.is-invalid').removeClass('is-invalid');
+            form.removeClass('was-validated');
+            validationSummary.addClass('d-none').text('');
+            $('#skillId').val('');
+            profSlider.val(50);
+            profValueSpan.text(50);
+            spinner.addClass('d-none');
+            saveButton.prop('disabled', false);
+
+            if(isEdit) {
+                modalTitle.text('Edit Skill');
+                $('#skillId').val(button.data('id'));
+                $('#skillName').val(button.data('name'));
+                $('#skillCategory').val(button.data('category'));
+                const proficiency = button.data('proficiency') || 50;
+                profSlider.val(proficiency);
+                profValueSpan.text(proficiency);
+                 let dateAcquired = button.data('date');
+                 if (dateAcquired && !/^\d{4}-\d{2}-\d{2}$/.test(dateAcquired)) { dateAcquired = ''; }
+                $('#skillDate').val(dateAcquired);
+            } else {
+                 modalTitle.text('Add Skill');
+            }
+        });
+
+        saveButton.on('click', function () {
+            validationSummary.addClass('d-none').text('');
+            form.find('.is-invalid').removeClass('is-invalid');
+
+            if (!form[0].checkValidity()) {
+                form.addClass('was-validated');
+                return;
+            }
+            form.removeClass('was-validated');
+
+            const skillId = $('#skillId').val();
+            const isEditing = skillId !== "";
+            const url = isEditing ? `@Url.Action("UpdateSkill", "Employee")` : `@Url.Action("AddSkill", "Employee")`;
+            const data = {
+                Id: skillId || null,
+                SkillName: $('#skillName').val(), Category: $('#skillCategory').val(),
+                Proficiency: parseInt(profSlider.val()) || 0,
+                DateAcquired: $('#skillDate').val(),
+            };
+
+            spinner.removeClass('d-none');
+            saveButton.prop('disabled', true);
+
+            $.ajax({
+                url: url, type: 'POST', contentType: 'application/json',
+                headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                data: JSON.stringify(data),
+                success: function (response) {
+                    if (response.success) {
+                        skillModal.hide(); alert(response.message); location.reload();
+                    } else {
+                        validationSummary.text('Error: ' + (response.message || 'Could not save.')).removeClass('d-none');
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Save Skill Error:", xhr.responseText);
+                    let errorMsg = 'An error occurred. Please try again.';
+                    if(xhr.responseJSON && xhr.responseJSON.message) { errorMsg = xhr.responseJSON.message; }
+                    else if (xhr.statusText) { errorMsg += ` (${xhr.statusText})`;}
+                    validationSummary.text(errorMsg).removeClass('d-none');
+                },
+                complete: function() {
+                    spinner.addClass('d-none');
+                    saveButton.prop('disabled', false).text(isEditing ? 'Update Skill' : 'Save Skill');
+                }
+            });
+        });
+
+        $('.btn-delete-skill').on('click', function () {
+            if(!confirm('Are you sure you want to delete this skill?')) return;
+            const button = $(this); const skillId = button.data('id'); const row = $(`#skill-row-${skillId}`);
+            const deleteUrl = `@Url.Action("DeleteSkill", "Employee")/${skillId}`;
+            const deleteIcon = button.find('i');
+
+            button.prop('disabled', true);
+            deleteIcon.removeClass('fa-trash').addClass('fa-spinner fa-spin');
+
+             $.ajax({
+                url: deleteUrl, type: 'POST',
+                headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                success: function (response) {
+                    if (response.success) {
+                         row.fadeOut(400, function() {
+                             $(this).remove();
+                             if ($('table tbody tr').length === 0) { location.reload(); }
+                         });
+                         alert(response.message);
+                    } else {
+                        alert('Error: ' + (response.message || 'Could not delete.'));
+                        button.prop('disabled', false);
+                        deleteIcon.removeClass('fa-spinner fa-spin').addClass('fa-trash');
+                    }
+                },
+                error: function (xhr) {
+                    console.error("Delete Skill Error:", xhr.responseText);
+                    alert('An error occurred while deleting.');
+                    button.prop('disabled', false);
+                    deleteIcon.removeClass('fa-spinner fa-spin').addClass('fa-trash');
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

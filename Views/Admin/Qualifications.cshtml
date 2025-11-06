@@ -1,0 +1,229 @@
+﻿@model List<Capableza.Web.Models.Qualification>
+@using Capableza.Web.Models
+@{
+    ViewData["Title"] = "Manage Qualifications";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string currentFilter = ViewBag.CurrentFilter as string ?? "Pending";
+    string GetFilterClass(string filterName) => filterName.Equals(currentFilter, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+
+}
+
+<style>
+    .header-actions .input-group-sm .form-control,
+    .header-actions .input-group-sm .input-group-text {
+        font-size: 0.8rem;
+        border-radius: 0.375rem;
+    }
+
+    .nav-tabs-filters {
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 1.5rem;
+    }
+
+        .nav-tabs-filters .nav-link {
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #6c757d;
+            padding: 0.6rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: -1px;
+        }
+
+            .nav-tabs-filters .nav-link.active {
+                color: #0F6F84;
+                border-bottom-color: #0F6F84;
+                font-weight: 600;
+            }
+
+            .nav-tabs-filters .nav-link:hover {
+                border-bottom-color: #adb5bd;
+            }
+
+    .qualification-table-card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+        overflow: hidden;
+    }
+
+    .qualification-table thead th {
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        background-color: #0F6F84;
+        color: white;
+        border: none;
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+    }
+
+    .qualification-table tbody td {
+        vertical-align: middle;
+        font-size: 0.9rem;
+        border-top: 1px solid #dee2e6;
+        padding: 0.75rem 1rem;
+    }
+
+    .qualification-table tbody tr:first-child td {
+        border-top: none;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.3em 0.6em;
+        font-weight: 500;
+    }
+
+    .btn-xs {
+        padding: 0.15rem 0.5rem;
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+
+    .action-icon {
+        color: #6c757d;
+        text-decoration: none;
+        padding: 0.2rem;
+    }
+
+        .action-icon:hover {
+            color: #0F6F84;
+        }
+
+    .action-icon-delete:hover {
+        color: #dc3545;
+    }
+
+    .btn-link-icon {
+        background: none;
+        border: none;
+        padding: 0.2rem;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+    <div class="d-flex align-items-center header-actions">
+        <div class="input-group input-group-sm me-2 d-none d-md-flex" style="max-width: 250px;">
+            <span class="input-group-text bg-light border-0 text-muted"><i class="fa fa-search"></i></span>
+            <input type="text" class="form-control form-control-sm bg-light border-0" placeholder="Search employee or qualification...">
+        </div>
+    </div>
+</div>
+
+<nav class="nav nav-tabs-filters">
+    <a class="nav-link @GetFilterClass("All")" asp-action="Qualifications" asp-route-filter="All">All</a>
+    <a class="nav-link @GetFilterClass("Pending")" asp-action="Qualifications" asp-route-filter="Pending">Pending</a>
+    <a class="nav-link @GetFilterClass("Verified")" asp-action="Qualifications" asp-route-filter="Verified">Verified</a>
+    <a class="nav-link @GetFilterClass("Rejected")" asp-action="Qualifications" asp-route-filter="Rejected">Rejected</a>
+</nav>
+
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center text-muted py-5">
+            <i class="fa fa-award fa-3x mb-3 text-secondary"></i>
+            <p>
+                @if (currentFilter.Equals("All", StringComparison.OrdinalIgnoreCase))
+                {
+                    @:No qualifications found across all employees.
+                }
+                else
+                {
+                    @:No qualifications found with status '@currentFilter'.
+                }
+            </p>
+            @if (currentFilter != "All")
+            {
+                <a asp-action="Qualifications" asp-route-filter="All" class="btn btn-sm btn-outline-secondary mt-2">Show All Qualifications</a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <div class="card qualification-table-card shadow-sm">
+        <div class="table-responsive">
+            <table class="table qualification-table mb-0 align-middle table-hover">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Employee</th>
+                        <th style="width: 25%;">Qualification</th>
+                        <th style="width: 20%;">Institute</th>
+                        <th style="width: 10%;" class="text-center">Year</th>
+                        <th style="width: 10%;" class="text-center">Status</th>
+                        <th style="width: 15%;" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.EmployeeName</td>
+                            <td class="fw-medium">@item.Title</td>
+                            <td>@item.Institute</td>
+                            <td class="text-center">@item.YearObtained</td>
+                            <td class="text-center">
+                                <span class="badge @(item.Status == "Verified" ? "bg-success" : (item.Status == "Rejected" ? "bg-danger" : "bg-warning text-dark")) rounded-pill">
+                                    @item.Status
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                @if (item.Status == "Pending")
+                                {
+                                    <form asp-action="VerifyQualification" method="post" class="d-inline me-1">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="employeeId" value="@item.EmployeeId" />
+                                        <input type="hidden" name="qualificationId" value="@item.Id" />
+                                        <input type="hidden" name="currentFilter" value="@currentFilter" />
+                                        <button type="submit" class="btn btn-xs btn-outline-success" title="Verify">
+                                            <i class="fa fa-check fa-fw"></i>
+                                        </button>
+                                    </form>
+                                    <form asp-action="RejectQualification" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="employeeId" value="@item.EmployeeId" />
+                                        <input type="hidden" name="qualificationId" value="@item.Id" />
+                                        <input type="hidden" name="currentFilter" value="@currentFilter" />
+                                        <button type="submit" class="btn btn-xs btn-outline-danger" title="Reject">
+                                            <i class="fa fa-times fa-fw"></i>
+                                        </button>
+                                    </form>
+                                }
+                                <a asp-action="EmployeeDetails" asp-route-id="@item.EmployeeId" class="action-icon ms-2" title="View Employee Details">
+                                    <i class="fa fa-user fa-fw"></i>
+                                </a>
+                                @* @if(!string.IsNullOrEmpty(item.DocumentUrl)) {
+                                    <a href="@item.DocumentUrl" target="_blank" class="action-icon ms-1" title="View Document">
+                                        <i class="fa fa-file-alt fa-fw"></i>
+                                    </a>
+                                } *@
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            $('input[placeholder="Search employee or qualification..."]').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('.qualification-table tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

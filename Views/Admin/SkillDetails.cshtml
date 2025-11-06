@@ -1,0 +1,44 @@
+﻿@model Capableza.Web.Models.Skill
+@{
+    ViewData["Title"] = "Skill Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string employeeName = ViewBag.EmployeeName as string ?? "Employee";
+    string employeeId = ViewBag.EmployeeId as string ?? "";
+}
+
+
+<div class="d-flex justify-content-between align-items-center mb-3 pt-1 pb-2 border-bottom">
+    <div>
+        <h1 class="h2">@ViewData["Title"]</h1>
+        <br/>
+        <h4>@ViewBag.EmployeeName</h4>
+    </div>
+    <a asp-action="EmployeeDetails" asp-route-id="@employeeId" class="btn btn-sm btn-outline-secondary">
+        <i class="fa fa-arrow-left me-1"></i> Back to Employee
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header py-3">
+        <h5 class="mb-0 card-title">@Model.SkillName</h5>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Skill Name:</dt>
+            <dd class="col-sm-9">@Model.SkillName</dd>
+
+            <dt class="col-sm-3">Category:</dt>
+            <dd class="col-sm-9">@Model.Category</dd>
+
+            <dt class="col-sm-3">Proficiency:</dt>
+            <dd class="col-sm-9">
+                <div class="progress" style="height: 20px; max-width: 300px;">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: @Model.Proficiency%;" aria-valuenow="@Model.Proficiency" aria-valuemin="0" aria-valuemax="100">@Model.Proficiency%</div>
+                </div>
+            </dd>
+
+            <dt class="col-sm-3">Date Acquired:</dt>
+            <dd class="col-sm-9">@Model.DateAcquired</dd>
+        </dl>
+    </div>
+</div>

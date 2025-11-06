@@ -1,0 +1,154 @@
+﻿@model List<Capableza.Web.Models.EmployeeProfile>
+@{
+    ViewData["Title"] = "Employees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .header-actions .input-group-sm .form-control,
+    .header-actions .input-group-sm .input-group-text { font-size: 0.8rem; border-radius: 0.375rem; }
+
+    .btn-add-employee{width: 100%}
+    .header-actions .btn-add-employee { background-color: #0F6F84; border-color: #0F6F84; color: white; font-size: 0.8rem; padding: 0.3rem 0.8rem; border-radius: 0.375rem; }
+    .header-actions .btn-add-employee:hover { background-color: #0B5B6D; border-color: #0B5B6D; }
+    .filter-dropdown .dropdown-toggle { font-size: 0.85rem; }
+    .employee-table-card { border: none; border-radius: 0.75rem; box-shadow: 0 .125rem .25rem rgba(0,0,0,.075); overflow: hidden;}
+    .employee-table thead th {
+        font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+        background-color: #0F6F84; color: white;
+        border: none; padding: 0.75rem 1rem; vertical-align: middle;
+    }
+    .employee-table tbody td { vertical-align: middle; font-size: 0.9rem; border-top: 1px solid #dee2e6; padding: 0.75rem 1rem; }
+    .employee-table tbody tr:first-child td { border-top: none; } 
+
+    .avatar-initials-sm {
+        background-color: #e0f7fa; color: #0B5B6D; border-radius: 50%; display: inline-flex;
+        align-items: center; justify-content: center; width: 30px; height: 30px;
+        font-size: 0.8rem; font-weight: 600;
+    }
+    .employee-name { font-weight: 500; color: #343a40; margin-left: 0.75rem; }
+    .status-badge { font-size: 0.75rem; padding: 0.3em 0.6em; background-color: #d1fae5 !important; color: #065f46 !important; font-weight: 500; }
+    .action-icon { color: #6c757d; text-decoration: none; padding: 0.2rem; }
+    .action-icon:hover { color: #0F6F84; }
+    .action-icon-delete { color: #6c757d; }
+    .action-icon-delete:hover { color: #dc3545; }
+    .btn-link-icon { background: none; border: none; padding: 0.2rem; margin: 0; vertical-align: middle; }
+
+    .avatar-img-sm {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-2 mb-3 border-bottom">
+    <h1 class="h2">@ViewData["Title"]</h1>
+    <div class="d-flex align-items-center header-actions">
+        <div class="input-group input-group-sm me-2 d-none d-md-flex" style="max-width: 250px;">
+            <span class="input-group-text bg-light border-0 text-muted"><i class="fa fa-search"></i></span>
+            <input type="text" class="form-control form-control-sm bg-light border-0" id="searchInput" placeholder="Search by name or role...">
+        </div>
+        <a asp-action="AddEmployee" asp-controller="Admin" class="btn btn-sm btn-add-employee">
+             <i class="fa fa-plus me-1"></i> Add Employee
+        </a>
+    </div>
+</div>
+
+
+@if (!Model.Any())
+{
+    <div class="card shadow-sm">
+        <div class="card-body text-center text-muted py-5">
+             <i class="fa fa-users-slash fa-3x mb-3 text-secondary"></i>
+            <p>No employees found.</p>
+             <a asp-action="AddEmployee" asp-controller="Admin" class="btn btn-primary-teal btn-sm mt-2">
+                 Add First Employee
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card employee-table-card shadow-sm">
+        <div class="table-responsive">
+            <table class="table employee-table mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Name</th>
+                        <th style="width: 20%;">Position/Role</th>
+                        <th style="width: 20%;">Key Skills</th>
+                        <th style="width: 15%;" class="text-center">Status</th>
+                        <th style="width: 15%;" class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                         
+                       string initials = string.Join("", item.FullName.Split(' ').Where(s => !string.IsNullOrEmpty(s)).Select(s => s[0])).ToUpper();
+                       if (initials.Length > 2) initials = initials.Substring(0, 2);
+                       else if (initials.Length == 0) initials = "??";
+                         
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+
+                                    @if (!string.IsNullOrWhiteSpace(item.ProfilePicture))
+                                    {
+                                        <img src="@Url.Action("ViewEmployeeProfilePicture", "Admin", new { id = item.Uid })"
+                                             alt="@item.FullName"
+                                             class="avatar-img-sm me-2">
+                                    }
+                                    else
+                                    {
+                                        <div class="avatar-initials-sm me-2"> @initials </div>
+                                    }
+
+                                    <span class="employee-name">@item.FullName</span>
+                                </div>
+                            </td>
+                            <td>@item.JobTitle</td>
+                            <td>
+                                <span class="text-muted small">
+                                    @* @item.SkillName *@
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge status-badge rounded-pill">
+                                    Active
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a asp-action="EmployeeDetails" asp-route-id="@item.Uid" class="action-icon me-2" title="View Details">
+                                    <i class="fa fa-eye fa-fw"></i>
+                                </a>
+                                <form asp-action="DeleteEmployee" asp-route-id="@item.Uid" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete employee @item.FullName? This action cannot be undone.');">
+                                     @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-link-icon p-0 action-icon action-icon-delete" title="Delete">
+                                        <i class="fa fa-trash fa-fw"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            $('#searchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+                $('.employee-table tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,276 @@
+﻿@model Capableza.Web.Models.EmployeeProfile
+@using Capableza.Web.Models
+@{
+    ViewData["Title"] = $"Details for {Model.FullName}";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var skills = ViewBag.Skills as List<Skill> ?? new List<Skill>();
+    var qualifications = ViewBag.Qualifications as List<Qualification> ?? new List<Qualification>();
+    var trainings = ViewBag.Trainings as List<EmployeeTraining> ?? new List<EmployeeTraining>();
+
+    string GetInitials(string fullName) {
+        string initials = string.Join("", fullName.Split(' ').Where(s => !string.IsNullOrEmpty(s)).Select(s => s[0])).ToUpper();
+        if (initials.Length > 2) initials = initials.Substring(0, 2);
+        else if (initials.Length == 0) initials = "??";
+        return initials;
+    }
+}
+
+<style>
+    .profile-header-card { border-left: 4px solid #0F6F84; }
+    .details-label { font-weight: 500; color: #6c757d; font-size: 0.9rem;}
+    .details-value { font-weight: 500; color: #343a40; }
+    .nav-tabs .nav-link { color: #495057; border: none; border-bottom: 2px solid transparent;}
+    .nav-tabs .nav-link.active { color: #0F6F84; border-bottom-color: #0F6F84; font-weight: 600;}
+    .nav-tabs { border-bottom-color: #dee2e6; }
+    .table thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; background-color: #f8f9fa;}
+    .table tbody td { font-size: 0.9rem; }
+    .badge { font-size: 0.75rem; padding: 0.3em 0.6em; }
+    .btn-xs { padding: 0.15rem 0.5rem; font-size: 0.75rem; line-height: 1.4; }
+    .action-icon { color: #6c757d; text-decoration: none; padding: 0.2rem; }
+    .action-icon:hover { color: #0F6F84; }
+    .action-icon-delete:hover { color: #dc3545; }
+    .btn-link-icon { background: none; border: none; padding: 0.2rem; margin: 0; vertical-align: middle; }
+
+    .avatar-details-img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #f0f0f0; 
+    }
+    .avatar-details {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #0F6F84;
+        color: white;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+</style>
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-2 mb-3 border-bottom">
+    <div>
+        <h1 class="h2">Employee Details</h1>
+    </div>
+    <div class="btn-toolbar mb-2 mb-md-0">
+         <a asp-action="Employees" class="btn btn-sm btn-outline-secondary">
+             <i class="fa fa-arrow-left me-1"></i> Back to List
+         </a>
+        <a asp-action="GenerateCv" asp-route-id="@Model.Uid" class="btn btn-sm btn-primary-teal" style="background-color: #0F6F84; border-color: #0F6F84; color: white; margin-left: 20px;">
+            Generate CV
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4 profile-header-card">
+    <div class="card-body p-4">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilePicture))
+                {
+                    <img src="@Url.Action("ViewEmployeeProfilePicture", "Admin", new { id = Model.Uid })"
+                         alt="@Model.FullName"
+                         class="avatar-details-img">
+                }
+                else
+                {
+                    <div class="avatar-details">@GetInitials(Model.FullName)</div>
+                }
+            </div>
+            <div class="col">
+                <h3 class="mb-0">@Model.FullName</h3>
+                <p class="text-muted mb-1">@Model.JobTitle</p>
+                <p class="text-muted small mb-0"><i class="fa fa-envelope fa-fw me-1"></i> @Model.Email</p>
+                @if (!string.IsNullOrWhiteSpace(Model.IdNumber)) {
+                    <p class="text-muted small mb-0"><i class="fa fa-id-card fa-fw me-1"></i> ID: @Model.IdNumber</p>
+                }
+                 <p class="text-muted small mb-0"><i class="fa fa-info-circle fa-fw me-1"></i> UID: @Model.Uid</p>
+            </div>
+          @* <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                 <label class="form-label small text-muted">Profile Completion</label>
+                 <div class="progress" style="height: 8px;">
+                     <div class="progress-bar" role="progressbar" style="width: @Model.ProfileCompletionStatus.ToString("F0")%; background-color: #0F6F84;"
+                          aria-valuenow="@Model.ProfileCompletionStatus" aria-valuemin="0" aria-valuemax="100"></div>
+                 </div>
+                 <span class="fw-bold small">@Model.ProfileCompletionStatus.ToString("F0")%</span>
+            </div>*@
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-light border-0">
+         <ul class="nav nav-tabs card-header-tabs" id="employeeDetailsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="skills-tab" data-bs-toggle="tab" data-bs-target="#skills-panel" type="button" role="tab" aria-controls="skills-panel" aria-selected="true">
+                    Skills (@skills.Count)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="qualifications-tab" data-bs-toggle="tab" data-bs-target="#qualifications-panel" type="button" role="tab" aria-controls="qualifications-panel" aria-selected="false">
+                    Qualifications (@qualifications.Count)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="trainings-tab" data-bs-toggle="tab" data-bs-target="#trainings-panel" type="button" role="tab" aria-controls="trainings-panel" aria-selected="false">
+                    Trainings (@trainings.Count)
+                </button>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body p-0">
+        <div class="tab-content" id="employeeDetailsTabContent">
+            <div class="tab-pane fade show active" id="skills-panel" role="tabpanel" aria-labelledby="skills-tab">
+                @if (!skills.Any())
+                {
+                    <p class="text-muted text-center p-4">No skills recorded...</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Skill</th><th>Category</th><th class="text-center">Proficiency</th><th>Date Acquired</th></tr></thead>
+                            <tbody>
+                                @foreach (var skill in skills)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-action="SkillDetails" asp-route-employeeId="@Model.Uid" asp-route-id="@skill.Id" style="text-decoration: none; color: black;">
+                                                @skill.SkillName
+                                            </a>
+                                        </td>
+                                        <td>@skill.Category</td>
+                                        <td class="text-center"><span class="badge bg-info rounded-pill">@skill.Proficiency%</span></td>
+                                        <td>@skill.DateAcquired</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            
+
+
+            <div class="tab-pane fade" id="qualifications-panel" role="tabpanel" aria-labelledby="qualifications-tab">
+                @if (!qualifications.Any())
+                {
+                    <p class="text-muted text-center p-4">No qualifications recorded...</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Title</th><th>Institute</th><th>Year</th><th>Status</th><th class="text-end">Admin Actions</th></tr></thead>
+                            <tbody>
+                                @foreach (var qual in qualifications)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-action="QualificationDetails" asp-route-employeeId="@Model.Uid" asp-route-id="@qual.Id" style="text-decoration: none; color: black;">
+                                                @qual.Title
+                                            </a>
+                                           
+                                        </td>
+                                        <td>@qual.Institute</td>
+                                        <td>@qual.YearObtained</td>
+                                        <td> <span class="badge rounded-pill" style="color: teal;">@qual.Status</span> </td>
+                                        <td class="text-end">
+                                            @if (qual.Status == "Pending")
+                                            {
+                                                <form asp-action="VerifyQualification" method="post" class="d-inline me-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="employeeId" value="@Model.Uid" />
+                                                    <input type="hidden" name="qualificationId" value="@qual.Id" />
+                                                    <input type="hidden" name="currentFilter" value="Pending" />
+                                                    <button type="submit" class="btn btn-xs btn-outline-success" title="Verify"><i class="fa fa-check"></i></button>
+                                                </form>
+                                                <form asp-action="RejectQualification" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="employeeId" value="@Model.Uid" />
+                                                    <input type="hidden" name="qualificationId" value="@qual.Id" />
+                                                    <input type="hidden" name="currentFilter" value="Pending" />
+                                                    <button type="submit" class="btn btn-xs btn-outline-danger" title="Reject"><i class="fa fa-times"></i></button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small fst-italic">No actions</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <div class="tab-pane fade" id="trainings-panel" role="tabpanel" aria-labelledby="trainings-tab">
+                @if (!trainings.Any())
+                {
+                    <p class="text-muted text-center p-4">No trainings submitted...</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead><tr><th>Training</th><th>Provider</th><th>Dates</th><th>Status</th><th class="text-end">Admin Actions</th></tr></thead>
+                            <tbody>
+                                @foreach (var train in trainings)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a asp-action="TrainingDetails" asp-route-employeeId="@Model.Uid" asp-route-id="@train.Id" style="text-decoration: none; color: black;">
+                                                @train.TrainingName
+                                            </a>
+                                        </td>
+                                        <td>@train.Provider</td>
+                                        <td>@train.StartDate - @train.EndDate</td>
+                                        <td><span class="badge rounded-pill text-capitalize" style="color: teal;">@train.Status</span></td>
+                                        <td class="text-end">
+                                            @if (!train.Approved && train.Status != "rejected")
+                                            {
+                                                <form asp-action="ApproveTraining" method="post" class="d-inline me-1">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="employeeId" value="@Model.Uid" />
+                                                    <input type="hidden" name="trainingId" value="@train.Id" />
+                                                    <button type="submit" class="btn btn-xs btn-outline-success" title="Approve"><i class="fa fa-check"></i></button>
+                                                </form>
+                                                <form asp-action="RejectTraining" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="employeeId" value="@Model.Uid" />
+                                                    <input type="hidden" name="trainingId" value="@train.Id" />
+                                                    <button type="submit" class="btn btn-xs btn-outline-danger" title="Reject"><i class="fa fa-times"></i></button>
+                                                </form>
+                                            } else if (train.Status == "rejected") {
+                                            <span class="text-muted small fst-italic">Rejected</span>
+                                            }
+                                            else {
+                                            <span class="text-muted small fst-italic">Approved</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+    </script>
+}

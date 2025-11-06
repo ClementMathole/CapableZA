@@ -1,0 +1,161 @@
+﻿@using System.Security.Claims
+@{
+    bool isAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole("admin");
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    Func<string, string, string> IsActive = (c, a) => (currentController.Equals(c, StringComparison.OrdinalIgnoreCase) && currentAction.Equals(a, StringComparison.OrdinalIgnoreCase)) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/x-icon" href="~/images/pngwing.com.png" style="width: 20;"/>
+    <title>@ViewData["Title"] - National Treasury Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="d-flex @(isAdmin ? "admin-layout" : "")">
+
+    @if (isAdmin)
+    {
+        <aside class="admin-sidebar bg-white shadow-sm d-flex flex-column flex-shrink-0 p-3 vh-100">
+            <a asp-controller="Admin" asp-action="Index" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"><img src="/images/capableza.jpg" alt="Logo" class="rounded me-2" width="40" height="40"><span class="fs-4 fw-bold" style="color: #0F6F84;">CapableZA</span></a> <hr class="mt-2 mb-3">
+            <ul class="nav nav-pills flex-column mb-auto"> <li class="nav-item"> <a asp-controller="Admin" asp-action="Index" class="nav-link @IsActive("Admin", "Index")" aria-current="page"><i class="fa fa-dashboard fa-fw me-2"></i> Dashboard</a> </li> <li> <a asp-controller="Admin" asp-action="Employees" class="nav-link @IsActive("Admin", "Employees") link-dark"><i class="fa fa-users fa-fw me-2"></i> Employees</a></li> <li> <a asp-controller="Admin" asp-action="Trainings" class="nav-link @IsActive("Admin", "Trainings") link-dark"><i class="fa fa-school fa-fw me-2"></i> Trainings</a></li> <li> <a asp-controller="Admin" asp-action="Qualifications" class="nav-link @IsActive("Admin", "Qualifications") link-dark"><i class="fa fa-award fa-fw me-2"></i> Qualifications</a></li> <li> <a asp-controller="Admin" asp-action="Skills" class="nav-link @IsActive("Admin", "Skills") link-dark"><i class="fa fa-lightbulb fa-fw me-2"></i> Skills</a></li> <li> <a asp-controller="Admin" asp-action="Reports" class="nav-link @IsActive("Admin", "Reports") link-dark"><i class="fa fa-chart-bar fa-fw me-2"></i> Reports</a></li> <li> <a asp-controller="Admin" asp-action="Notifications" class="nav-link @IsActive("Admin", "Notifications") link-dark"><i class="fa fa-bell fa-fw me-2"></i> Notifications</a></li> <li> <a asp-controller="Admin" asp-action="Settings" class="nav-link @IsActive("Admin", "Settings") link-dark"><i class="fa fa-cog fa-fw me-2"></i> Settings</a></li> </ul> <hr class="mt-auto mb-3"> <div class="dropdown"> <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle" id="dropdownUserAdmin" data-bs-toggle="dropdown" aria-expanded="false"> <img src="https://placehold.co/32x32/0F6F84/FFFFFF?text=AD" alt="" width="32" height="32" class="rounded-circle me-2"> <strong>Admin</strong> </a> <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUserAdmin"> <li><a class="dropdown-item" asp-controller="Admin" asp-action="Settings">Settings</a></li> <li><a class="dropdown-item" asp-controller="Home" asp-action="Index">View Site (Home)</a></li> <li><hr class="dropdown-divider"></li> <li> <form asp-controller="Account" asp-action="Logout" method="post" id="logoutFormAdmin" class="d-inline"> @Html.AntiForgeryToken() <button type="submit" class="dropdown-item btn btn-link text-danger text-start w-100"><i class="fa fa-sign-out-alt fa-fw me-1"></i> Sign out</button> </form> </li> </ul> </div> <div class="mt-3 text-center text-muted small">Version 1.0</div>
+        </aside>
+        <div class="main-content flex-grow-1 overflow-auto">
+            <main role="main" class="p-4">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+
+    }
+    else
+    {
+        <div class="d-flex flex-column w-100 min-vh-100">
+            <header>
+                <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow py-2 px-5">
+                    <div class="container-fluid">
+                        <a class="navbar-brand fw-bold d-flex align-items-center" style="color: #0F6F84;" asp-controller="Home" asp-action="Index">
+                            <img src="~/images/capableza.jpg" alt="National Treasury Logo" class="rounded me-2" width="32" height="32" style="margin-bottom: -2px;"/>
+                            CapableZA
+                        </a>
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMainCollapse" aria-controls="navbarMainCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse" id="navbarMainCollapse">
+                            <div class="centered-navbar-links">
+                                <ul class="navbar-nav mb-2 mb-lg-0 d-flex flex-row">
+                                    <li class="nav-item"> <a class="nav-link @IsActive("Home", "Index")" asp-controller="Home" asp-action="Index">Home</a> </li>
+                                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("employee"))
+                                    {
+                                        <li class="nav-item"><a class="nav-link @IsActive("Employee", "Dashboard")" asp-controller="Employee" asp-action="Dashboard">My Dashboard</a></li>
+                                        <li class="nav-item"><a class="nav-link @IsActive("Employee", "Profile")" asp-controller="Employee" asp-action="Profile">My Profile</a></li>
+                                        <li class="nav-item dropdown">
+                                            <a class="nav-link dropdown-toggle @(currentController == "Employee" && (currentAction == "Skills" || currentAction == "Qualifications" || currentAction == "Trainings") ? "active" : "")" href="#" id="navbarManageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> Manage Info </a>
+                                            <ul class="dropdown-menu" aria-labelledby="navbarManageDropdown">
+                                                <li><a class="dropdown-item @IsActive("Employee", "Skills")" asp-controller="Employee" asp-action="Skills">My Skills</a></li>
+                                                <li><a class="dropdown-item @IsActive("Employee", "Qualifications")" asp-controller="Employee" asp-action="Qualifications">My Qualifications</a></li>
+                                                <li><a class="dropdown-item @IsActive("Employee", "Trainings")" asp-controller="Employee" asp-action="Trainings">My Trainings</a></li>
+                                            </ul>
+                                        </li>
+                                    }
+                                    <li class="nav-item"> <a class="nav-link @IsActive("Home", "About")" asp-controller="Home" asp-action="About">About Us</a> </li>
+                                    <li class="nav-item"> <a class="nav-link @IsActive("Home", "Help")" asp-controller="Home" asp-action="Help">Help/FAQ</a> </li>
+                                    <li class="nav-item"> <a class="nav-link @IsActive("Home", "Contact")" asp-controller="Home" asp-action="Contact">Contact Us</a> </li>
+                                </ul>
+                            </div>
+
+                            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fa fa-user-circle me-1"></i> @User.FindFirstValue(ClaimTypes.Email) </a>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
+                                            @if (User.IsInRole("employee"))
+                                            {
+                                                <li><a class="dropdown-item" asp-controller="Employee" asp-action="Profile">Profile</a></li>
+                                                <li><a class="dropdown-item" asp-controller="Employee" asp-action="ChangePassword">Change Password</a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                            }
+                                            <li>
+                                                <form asp-controller="Account" asp-action="Logout" method="post" id="logoutFormStd" class="d-inline"> @Html.AntiForgeryToken() <button type="submit" class="dropdown-item btn btn-link text-danger text-start w-100"><i class="fa fa-sign-out-alt fa-fw me-1"></i> Logout</button> </form>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item">
+                                        <a class="btn btn-login btn-sm px-5 py-1 border border-light bg-white @IsActive("Account", "Login")"
+                                           asp-controller="Account" asp-action="Login">
+                                            Login
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+            <div class="container mt-4 flex-grow-1">
+                <main role="main" class="pb-3">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">@TempData["SuccessMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">@TempData["ErrorMessage"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+                    }
+                    @RenderBody()
+                </main>
+            </div>
+            <footer class="footer mt-auto py-3 bg-light border-top">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center text-md-start mb-2 mb-md-0">
+                            <span class="text-muted small">
+                                &copy; @DateTime.Now.Year - National Treasury Republic of South Africa | CapableZA
+                            </span>
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <ul class="list-inline mb-0">
+                                <li class="list-inline-item">
+                                    <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-muted small text-decoration-none">Privacy Policy</a>
+                                </li>
+                                <li class="list-inline-item ms-2">
+                                    <a asp-area="" asp-controller="Home" asp-action="Help" class="text-muted small text-decoration-none">Help/FAQ</a>
+                                </li>
+                                <li class="list-inline-item ms-2">
+                                    <a asp-area="" asp-controller="Home" asp-action="Contact" class="text-muted small text-decoration-none">Contact Support</a>
+                                </li>
+                                <li class="list-inline-item ms-2">
+                                    <a href="http://www.treasury.gov.za" target="_blank" class="text-muted small text-decoration-none">
+                                        NT Official Site <i class="fa fa-external-link-alt fa-xs"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    }
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

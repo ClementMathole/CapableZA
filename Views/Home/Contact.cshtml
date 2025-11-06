@@ -1,0 +1,85 @@
+﻿@{
+    ViewData["Title"] = "Contact Us";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    
+
+    <h1 class="display-6 mb-4">@ViewData["Title"]</h1>
+
+    <div class="row g-4">
+        <div class="col-md-7 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="card-title text-primary mb-3" style="color: #0F6F84 !important;">Get In Touch</h5>
+                    <p class="text-muted">
+                        For inquiries specifically related to the National Treasury Skills Audit System, please use the appropriate contact details below.
+                        For general National Treasury matters, please refer to the official National Treasury website.
+                    </p>
+                    <hr class="my-4">
+                    <div class="mb-4 d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fa fa-headset fa-2x text-primary" style="color: #0F6F84 !important;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1">Portal Support (Technical Issues & Access)</h6>
+                            <p class="mb-1 small">
+                                <strong>Email:</strong>
+                                <a href="mailto:skillsauditsupport@treasury.gov.za" class="text-decoration-none">skillsauditsupport@treasury.gov.za</a>
+                                <span class="text-muted"></span>
+                            </p>
+                            <p class="mb-1 small">
+                                <strong>Phone:</strong>
+                                012-547-8456
+                                <span class="text-muted"></span>
+                            </p>
+                            <p class="text-muted small mb-0">Support available during standard office hours (Mon-Fri, 08:00 - 16:30 SAST).</p>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="mb-3 d-flex align-items-start">
+                        <div class="flex-shrink-0 me-3">
+                            <i class="fa fa-user-tie fa-2x text-primary" style="color: #0F6F84 !important;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1">HR / Training Content Inquiries</h6>
+                            <p class="small text-muted mb-1">
+                                Please contact your relevant Human Resources Business Partner or the Training Administration unit directly for questions regarding specific skills definitions, qualification requirements, course content, or training program schedules.
+                            </p>
+                            <p class="small mb-0">
+                                <strong>Internal Directory:</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 col-lg-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body p-4 d-flex flex-column text-center">
+                    <i class="fa fa-building fa-3x text-secondary mb-3 mt-2"></i>
+                    <h6 class="fw-bold mb-2">National Treasury</h6>
+                    <address class="small text-muted mb-3">
+                        01 Mothusi Road<br>
+                        Central University, Welkom, 9460<br>
+                        South Africa
+                    </address>
+                    <div class="mb-3">
+                        <img src="https://i.nona.net/locmap_THABONG_26.6153333X-28.0866667X26.9513333X-27.8466667.png" class="img-fluid rounded" alt="Map Placeholder">
+                    </div>
+
+                    <a href="http://www.treasury.gov.za" target="_blank" class="btn btn-sm btn-outline-secondary mt-auto">
+                        Official NT Website <i class="fa fa-external-link-alt ms-1 small"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {}

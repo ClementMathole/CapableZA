@@ -10,7 +10,7 @@ skills-audit-db-firebase-adminsdk-fbsvc-32e4a20d2c.json
 [Oo]bj/
 
 # VS cache
-.vs/
+.vs
 
 # .NET User Secrets
 /secrets.json

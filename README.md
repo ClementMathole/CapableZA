@@ -51,4 +51,8 @@ Issues and pull requests will not be reviewed or accepted.
 
 ---
 
-![License: All Rights Reserved](https://img.shields.io/badge/License-All%20Rights%20Reserved-red)
+## License
+
+You are **not permitted to use, copy, modify, or distribute** the code in any way.  
+For full legal details, see the [LICENSE](./LICENSE) file.
+
